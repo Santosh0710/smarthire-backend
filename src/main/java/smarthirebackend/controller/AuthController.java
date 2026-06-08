@@ -1,5 +1,6 @@
 package smarthirebackend.controller;
 
+import smarthirebackend.dto.request.LoginRequest;
 import smarthirebackend.dto.request.RegisterRequest;
 import smarthirebackend.dto.response.AuthResponse;
 import smarthirebackend.service.AuthService;
@@ -35,5 +36,11 @@ public class AuthController
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-
+//    POST /api/auth/login
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request)
+    {
+       AuthResponse response = authService.login(request.getEmail(), request.getPassword());
+       return new ResponseEntity<>(response , HttpStatus.OK);
+    }
 }
