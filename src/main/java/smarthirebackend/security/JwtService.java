@@ -55,6 +55,12 @@ public class JwtService
         return extractClaim(token, Claims::getSubject);
     }
 
+    // Extract role from token
+    public String extractRole(String token) {
+        return extractClaim(token,
+                claims -> claims.get("role", String.class));
+    }
+
     // Check if token is valid for this email
     public boolean isTokenValid(String token, String email) {
         final String extractedEmail = extractEmail(token);

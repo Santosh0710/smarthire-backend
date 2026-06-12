@@ -34,7 +34,7 @@ public class User
 
 //    Maps to column "first_name" cannot be null
     @Column(name = "first_name" , nullable = false)
-    private String first_name;
+    private String firstName;
 
     // Maps to column "last_name", cannot be null
     @Column(name = "last_name", nullable = false)

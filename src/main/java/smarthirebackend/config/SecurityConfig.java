@@ -1,24 +1,29 @@
 package smarthirebackend.config;
 
+import smarthirebackend.security.JwtAuthFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-// @Configuration tells spring this class contains beans
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig
-{
-//    @Bean tells spring to manage this object
-//    now we can inject password encoder anywhere we need it
+@RequiredArgsConstructor
+public class SecurityConfig {
+
+    // Inject our JWT filter
+    private final JwtAuthFilter jwtAuthFilter;
+
     @Bean
-    public PasswordEncoder passwordEncoder()
-    {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
@@ -28,14 +33,21 @@ public class SecurityConfig
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
+                        // Public endpoints - no token needed
                         .requestMatchers("/api/auth/**").permitAll()
+                        // GET jobs is public - anyone can browse
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/jobs/**").permitAll()
+                        // Everything else needs a valid JWT token
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(
-                                org.springframework.security.config.http.SessionCreationPolicy.STATELESS
-                        )
-                );
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                // Add our JWT filter BEFORE Spring's default auth filter
+                // This means JWT is checked first on every request
+                .addFilterBefore(jwtAuthFilter,
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

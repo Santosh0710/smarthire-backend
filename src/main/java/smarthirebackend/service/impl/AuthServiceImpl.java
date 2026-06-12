@@ -44,7 +44,7 @@ public class AuthServiceImpl implements AuthService
         // Step 2: Build User object from request
         // Notice: we encrypt the password before saving
         User user = User.builder()
-                .first_name(request.getFirstName())
+                .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
